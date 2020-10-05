@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <variable
+            name="position"
+            type="java.lang.Integer" />
+
+        <variable
+            name="viewmodel"
+            type="com.example.simplemediaapi.viewmodel.SearchViewModel" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="15dp"
+        android:id="@+id/albumsRecyclerLayout"
+        android:onClick="@{() -> viewmodel.clickAlbum(position)}">
+
+        <ImageView
+            android:id="@+id/albumPageAlbumImage"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            imageUrl="@{viewmodel.albums[position].imageUrl}"
+            android:src="@mipmap/ic_launcher"
+            android:contentDescription="@string/albumPhoto" />
+
+        <TextView
+            android:id="@+id/albumPageAlbumName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{viewmodel.albums[position].name}"
+            android:singleLine="true"
+            android:layout_toRightOf="@+id/albumPageAlbumImage"
+            android:layout_toEndOf="@+id/albumPageAlbumImage"
+            android:padding="5dp"
+            android:textSize="17sp"
+            android:textColor="@color/colorText"
+            android:layout_marginLeft="15dp"
+            android:layout_marginStart="15dp" />
+
+        <TextView
+            android:id="@+id/albumPageArtistName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{viewmodel.albums[position].artistName}"
+            android:singleLine="true"
+            android:layout_toRightOf="@+id/albumPageAlbumImage"
+            android:layout_toEndOf="@+id/albumPageAlbumImage"
+            android:padding="5dp"
+            android:textSize="17sp"
+            android:textColor="@color/colorText"
+            android:layout_below="@+id/albumPageAlbumName"
+            android:layout_marginLeft="15dp"
+            android:layout_marginStart="15dp" />
+
+    </RelativeLayout>
+</layout>

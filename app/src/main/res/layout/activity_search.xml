@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="viewmodel"
+            type="com.example.simplemediaapi.viewmodel.SearchViewModel" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".view.SearchActivity">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/searchField"
+            android:layout_width="match_parent"
+            android:layout_height="85dp"
+            android:hint="@string/enterAlbumName"
+            android:padding="10dp"
+            app:endIconMode="clear_text"
+            app:startIconDrawable="@drawable/ic_baseline_search_24" >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/searchEditField"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onTextChanged="@{viewmodel.onTextChanged}" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/albumsList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:setAdapter="@{viewmodel.adapter}"
+            android:layout_below="@+id/searchField"/>
+
+        <include android:id="@+id/disconnectedView"
+            layout="@layout/disconnected_indicator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/searchField"/>
+
+    </RelativeLayout>
+</layout>
