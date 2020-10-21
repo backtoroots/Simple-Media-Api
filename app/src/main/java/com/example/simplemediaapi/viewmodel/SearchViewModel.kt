@@ -1,18 +1,14 @@
 package com.example.simplemediaapi.viewmodel
 
-import android.os.Bundle
-import androidx.core.os.bundleOf
 import androidx.lifecycle.*
-import com.example.simplemediaapi.view.AlbumActivity
 import com.example.simplemediaapi.R
 import com.example.simplemediaapi.adapters.AlbumsRecyclerViewAdapter
 import com.example.simplemediaapi.constants.ApiConstants
-import com.example.simplemediaapi.constants.IntentConstants
 import com.example.simplemediaapi.model.ITunesRepository
 import com.example.simplemediaapi.model.Album
+import com.xyarim.users.utils.Event
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlin.reflect.KClass
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -20,14 +16,14 @@ import kotlinx.coroutines.withContext
  * ViewModel для SearchActivity.
  */
 class SearchViewModel : ViewModel() {
-//    Переменная для привязки перехода к необходимой активити из ViewModel
-    private val _toStart = MutableLiveData<Pair<KClass<*>, Bundle?>>()
-    val toStart: LiveData<Pair<KClass<*>, Bundle?>> = _toStart
 
-//    Список альбомов
+    private val _toStart = MutableLiveData<Event<Album>>()
+    val toStart: LiveData<Event<Album>> = _toStart
+
+    //    Список альбомов
     var albums: List<Album> = listOf()
 
-//    Инициализация адаптера, хранящего записи об альбомах
+    //    Инициализация адаптера, хранящего записи об альбомах
     val adapter = AlbumsRecyclerViewAdapter(R.layout.albums_list_item, this)
 
     /**
@@ -38,13 +34,12 @@ class SearchViewModel : ViewModel() {
      */
     fun clickAlbum(position: Int) {
         _toStart.postValue(
-            Pair(
-                AlbumActivity::class,
-                bundleOf(
-                    IntentConstants.idAlbum to albums[position].id,
-                    IntentConstants.artistName to albums[position].artistName,
-                    IntentConstants.albumName to albums[position].name,
-                    IntentConstants.albumImageUrl to albums[position].imageUrl
+            Event(
+                Album(
+                    albums[position].id,
+                    albums[position].artistName,
+                    albums[position].name,
+                    albums[position].imageUrl
                 )
             )
         )
