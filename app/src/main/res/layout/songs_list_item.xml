@@ -29,7 +29,7 @@
             android:singleLine="true"
             android:textColor="@color/colorText"
             android:textSize="17sp"
-            android:text="@{viewmodel.songs[position].getNumber()}" />
+            android:text="@{viewmodel.displayedSongs[position].getNumber()}" />
 
         <TextView
             android:id="@+id/songName"
@@ -43,7 +43,7 @@
             android:singleLine="true"
             android:textColor="@color/colorText"
             android:textSize="17sp"
-            android:text="@{viewmodel.songs[position].name}" />
+            android:text="@{viewmodel.displayedSongs[position].name}" />
 
         <TextView
             android:id="@+id/songDuration"

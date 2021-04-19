@@ -1,8 +1,12 @@
 package com.example.simplemediaapi.api
 
+import com.example.simplemediaapi.model.Album
 import com.example.simplemediaapi.model.AlbumResponse
 import com.example.simplemediaapi.model.AlbumsResponse
+import io.reactivex.Observable
+import io.reactivex.Single
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -18,7 +22,7 @@ interface ITunesApi {
         @Query("attribute") searchingAttribute: String,
         @Query("limit") limit: String,
         @Query("country") country: String
-    ): Call<AlbumsResponse>
+    ): Single<Response<AlbumsResponse>>
 
     @GET("/search")
     fun getSongs(
@@ -26,5 +30,5 @@ interface ITunesApi {
         @Query("entity") typeOfContent: String,
         @Query("limit") limit: String,
         @Query("country") country: String
-    ): Call<AlbumResponse>
+    ): Single<Response<AlbumResponse>>
 }

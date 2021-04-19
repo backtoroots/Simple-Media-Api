@@ -28,7 +28,7 @@ class RecyclerViewBinding {
         @BindingAdapter("imageUrl")
         fun bindRecyclerViewAdapter(imageView: ImageView, imageUrl: String?) {
             if (imageUrl != null) {
-                Picasso.get().load(imageUrl).into(imageView)
+                Picasso.get().load(imageUrl).into(imageView) // TODO add photo by default before correct connected
             }
         }
 

@@ -5,3 +5,4 @@
     <string name="limitForAlbums">15</string>
     <string name="countryRu">ru</string>
 </resources>
+<!--TODO delete file if unused-->

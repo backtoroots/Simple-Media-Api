@@ -1,30 +1,83 @@
 package com.example.simplemediaapi.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.*
 import com.example.simplemediaapi.R
 import com.example.simplemediaapi.adapters.AlbumsRecyclerViewAdapter
 import com.example.simplemediaapi.constants.ApiConstants
-import com.example.simplemediaapi.model.ITunesRepository
 import com.example.simplemediaapi.model.Album
-import com.xyarim.users.utils.Event
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.example.simplemediaapi.model.ITunesRepository
+import com.example.simplemediaapi.utils.Event
+import io.reactivex.Flowable
+import io.reactivex.Observable
+import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
+import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.PublishSubject
+import java.util.concurrent.TimeUnit
 
 /**
  * ViewModel для SearchActivity.
  */
 class SearchViewModel : ViewModel() {
 
+    private val TAG = "SearchViewModelTag"
+
     private val _toStart = MutableLiveData<Event<Album>>()
     val toStart: LiveData<Event<Album>> = _toStart
 
-    //    Список альбомов
-    var albums: List<Album> = listOf()
+    private val disposables = CompositeDisposable()
+    private val searchTextChanges = BehaviorSubject.create<String>()
+    private val networkConnectionChanges = PublishSubject.create<Boolean>()
 
-    //    Инициализация адаптера, хранящего записи об альбомах
     val adapter = AlbumsRecyclerViewAdapter(R.layout.albums_list_item, this)
+
+    var displayedAlbums: List<Album> = listOf()
+    set(value) {
+        field = value
+        adapter.notifyDataSetChanged()
+    }
+
+    init {
+        val searchTextEvents = searchTextChanges
+            .debounce(
+                400,
+                TimeUnit.MILLISECONDS,
+                AndroidSchedulers.mainThread()
+            ) // TODO think about debounce time length, delete hardcode
+            .map { text -> text.trim() }
+            .filter { text -> text.isNotEmpty() }
+
+
+        Observable.combineLatest(
+            networkConnectionChanges,
+            searchTextEvents) { isNetworkConnected, searchText ->
+            Pair(isNetworkConnected, searchText)
+        }
+            .filter { (isNetworkConnected, _) ->
+                isNetworkConnected
+            }
+            .map { (_, searchText) -> searchText }
+            .flatMapSingle { text ->
+                Log.v("searchViewModelTag", "onNext - text: ${text}\n")
+                getAlbums(text).subscribeOn(Schedulers.io()) // TODO add error handling - room cache?
+            }
+            .map { albums -> albums.sortedBy { it.name } }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { albumsFromApi ->
+                    Log.v("searchViewModelTag", "onNext - size: ${albumsFromApi.size}\n")
+                    displayedAlbums = albumsFromApi
+            }.addTo(disposables)
+    }
+
+
+    fun searchTextChanged(text: String) = searchTextChanges.onNext(text)
+    fun networkConnectionChanged(isNetworkConnected: Boolean) {
+        networkConnectionChanges.onNext(isNetworkConnected)
+    }
 
     /**
      * Метод обрабатывает клик по одному из альбомов - элементу RecyclerView.
@@ -36,42 +89,31 @@ class SearchViewModel : ViewModel() {
         _toStart.postValue(
             Event(
                 Album(
-                    albums[position].id,
-                    albums[position].artistName,
-                    albums[position].name,
-                    albums[position].imageUrl
+                    displayedAlbums[position].id,
+                    displayedAlbums[position].artistName,
+                    displayedAlbums[position].name,
+                    displayedAlbums[position].imageUrl
                 )
             )
         )
     }
 
-    /**
-     * Метод обрабатывает событие изменение текста в строке поиска.
-     * С помощью корутины запрашиваются данные из Api.
-     * В шаблоне привязывается к уже сгенерированному BindingAdapter.
-     * Альбомы сортируются по имени.
-     * @param searchText новый текст в строке поиска
-     */
-    fun onTextChanged(searchText: CharSequence, start: Int, before: Int, count: Int) {
-        if (searchText.isNotEmpty()) {
-            GlobalScope.launch(Dispatchers.IO) {
-                val albumFromApi = ITunesRepository.getAlbums(
-                    searchText.toString(),
-                    ApiConstants.albumTypeOfContent,
-                    ApiConstants.searchByAlbum,
-                    ApiConstants.limitForAlbums,
-                    ApiConstants.countryRu
-                )
-                withContext(Dispatchers.Main) {
-                    albums = albumFromApi.sortedBy { it.name }
-                    adapter.notifyDataSetChanged()
-                }
+    private fun getAlbums(searchText: String): Single<List<Album>> {
+        return ITunesRepository.getAlbums(
+            searchText,
+            ApiConstants.albumTypeOfContent,
+            ApiConstants.searchByAlbum,
+            ApiConstants.limitForAlbums,
+            ApiConstants.countryRu)
+            .retryWhen { errors -> // TODO fix retry
+                return@retryWhen errors.flatMap { Flowable.timer(5, TimeUnit.SECONDS) } // TODO hardcode
             }
-        } else {
-            albums = listOf()
-            adapter.notifyDataSetChanged()
-        }
+            .onErrorReturn { emptyList<Album>() }
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        disposables.clear()
+    }
 
 }

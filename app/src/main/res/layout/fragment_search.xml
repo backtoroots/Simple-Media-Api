@@ -10,7 +10,9 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/searchField"
@@ -22,10 +24,12 @@
             app:startIconDrawable="@drawable/ic_baseline_search_24" >
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/searchEditField"
+                android:id="@+id/searchAlbumField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:onTextChanged="@{viewmodel.onTextChanged}" />
+                android:singleLine="true"
+                android:imeOptions="flagNoExtractUi"/>
+<!-- TODO soft hide keyboard-->
 
         </com.google.android.material.textfield.TextInputLayout>
 

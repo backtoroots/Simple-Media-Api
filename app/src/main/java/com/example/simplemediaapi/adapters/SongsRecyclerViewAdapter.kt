@@ -41,5 +41,5 @@ class SongsRecyclerViewAdapter(
         holder.bind(viewModel, position)
     }
 
-    override fun getItemCount(): Int = viewModel.songs.size
+    override fun getItemCount(): Int = viewModel.displayedSongs.size
 }
