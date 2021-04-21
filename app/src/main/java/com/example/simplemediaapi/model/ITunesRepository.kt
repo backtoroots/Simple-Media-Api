@@ -29,11 +29,10 @@ object ITunesRepository {
         searchText: String,
         typeOfContent: String,
         searchingAttribute: String,
-        limit: String,
         country: String
     ): Single<List<Album>> {
        return ApiService.iTunesApi.getAlbums( // TODO add map with status codes
-            searchText, typeOfContent, searchingAttribute, limit, country)
+            searchText, typeOfContent, searchingAttribute, country)
            .doOnSuccess {
                 Log.v(TAG, "Response code: ${it.code()} ${it.message()}\n")
            }
@@ -45,16 +44,14 @@ object ITunesRepository {
      * Получение песен из Api.
      * @param searchText запрос для поиска
      * @param typeOfContent тип запрашиваемого контента
-     * @param limit количество записей
      * @param country страна
      */
     fun getSongs(
         searchText: String,
         typeOfContent: String,
-        limit: String,
         country: String
     ): Single<List<Song>> {
-        return ApiService.iTunesApi.getSongs(searchText, typeOfContent, limit, country)
+        return ApiService.iTunesApi.getSongs(searchText, typeOfContent, country)
             .doOnSuccess {
                 Log.v(TAG, "Response code: ${it.code()} ${it.message()}\n")
             }

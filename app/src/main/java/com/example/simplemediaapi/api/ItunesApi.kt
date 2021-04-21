@@ -20,7 +20,6 @@ interface ITunesApi {
         @Query("term") searchText: String,
         @Query("entity") typeOfContent: String,
         @Query("attribute") searchingAttribute: String,
-        @Query("limit") limit: String,
         @Query("country") country: String
     ): Single<Response<AlbumsResponse>>
 
@@ -28,7 +27,6 @@ interface ITunesApi {
     fun getSongs(
         @Query("term") searchText: String,
         @Query("entity") typeOfContent: String,
-        @Query("limit") limit: String,
         @Query("country") country: String
     ): Single<Response<AlbumResponse>>
 }

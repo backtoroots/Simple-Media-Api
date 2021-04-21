@@ -9,8 +9,6 @@ class ApiConstants {
         @JvmStatic val albumTypeOfContent = "album"
         @JvmStatic val songTypeOfContent = "song"
         @JvmStatic val searchByAlbum = "albumTerm"
-        @JvmStatic val limitForAlbums = "15" // TODO delete limit, correct api request, use Flowables
-        @JvmStatic val limitForSongs = "500"
         @JvmStatic val countryRu = "ru"
     }
 }

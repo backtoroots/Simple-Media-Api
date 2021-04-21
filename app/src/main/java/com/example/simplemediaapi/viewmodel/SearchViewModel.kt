@@ -103,7 +103,6 @@ class SearchViewModel : ViewModel() {
             searchText,
             ApiConstants.albumTypeOfContent,
             ApiConstants.searchByAlbum,
-            ApiConstants.limitForAlbums,
             ApiConstants.countryRu)
             .retryWhen { errors -> // TODO fix retry
                 return@retryWhen errors.flatMap { Flowable.timer(5, TimeUnit.SECONDS) } // TODO hardcode

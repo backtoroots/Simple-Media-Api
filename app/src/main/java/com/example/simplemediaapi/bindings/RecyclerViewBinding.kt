@@ -4,6 +4,7 @@ import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.simplemediaapi.utils.ListItemItemDecoration
 import com.squareup.picasso.Picasso
 
 class RecyclerViewBinding {
@@ -18,6 +19,7 @@ class RecyclerViewBinding {
         fun bindRecyclerViewAdapter(recyclerView: RecyclerView,
                                     adapter: RecyclerView.Adapter<*>?) {
                 recyclerView.layoutManager = LinearLayoutManager(recyclerView.context)
+            recyclerView.addItemDecoration(ListItemItemDecoration(10))
                 recyclerView.adapter = adapter
         }
 

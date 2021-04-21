@@ -1,23 +1,19 @@
 package com.example.simplemediaapi.view
 
-import android.app.Activity
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
 import com.example.simplemediaapi.R
 import com.example.simplemediaapi.databinding.FragmentAlbumBinding
+import com.example.simplemediaapi.utils.buildViewModel
 import com.example.simplemediaapi.viewmodel.AlbumViewModel
 import com.example.simplemediaapi.viewmodel.NetworkViewModel
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import kotlinx.android.synthetic.main.activity_home.*
-import com.example.simplemediaapi.utils.buildViewModel
-import io.reactivex.android.schedulers.AndroidSchedulers
 
 
 class AlbumFragment : Fragment() {
@@ -32,7 +28,7 @@ class AlbumFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val binding = FragmentAlbumBinding.inflate(inflater, container, false) // TODO перехожу с поиска, не подхватывается инфа о состоянии инета, выводится
             .apply { viewmodel = viewModel }
         binding.lifecycleOwner = this.viewLifecycleOwner
@@ -55,9 +51,6 @@ class AlbumFragment : Fragment() {
             .subscribe { isNetworkConnected ->
             viewModel.networkConnectionChanged(isNetworkConnected)
         }.addTo(disposables)
-
-
-//        viewModel.album = requireArguments().getParcelable("album")!!
     }
 
     override fun onDestroyView() {
@@ -65,10 +58,4 @@ class AlbumFragment : Fragment() {
         disposables.clear()
     }
 
-//    override fun onAttach(context: Context) {
-//        super.onAttach(context)
-//        if (this.view == null) {
-//            print(123)
-//        }
-//    }
 }

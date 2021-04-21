@@ -36,7 +36,7 @@ class SearchFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val binding = FragmentSearchBinding.inflate(inflater, container, false)
             .apply { viewmodel = viewModel }
         binding.lifecycleOwner = this.viewLifecycleOwner

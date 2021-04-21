@@ -1,6 +1,5 @@
 package com.example.simplemediaapi.viewmodel
 
-import android.net.Network
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -27,7 +26,9 @@ class AlbumViewModel(val album: Album): ViewModel() {
     private val networkConnectionChanges = PublishSubject.create<Boolean>()
     private val disposables = CompositeDisposable()
 
-    private val TAG = "albumViewModelTag"
+    companion object {
+        private const val TAG = "AlbumViewModelTag"
+    }
 
     init {
         networkConnectionChanges
@@ -68,9 +69,8 @@ class AlbumViewModel(val album: Album): ViewModel() {
             return ITunesRepository.getSongs(
                 album.name,
                 ApiConstants.songTypeOfContent,
-                ApiConstants.limitForSongs,
                 ApiConstants.countryRu
-            ) // TODO can i search by ID
+            )
                 .map { allSongs ->
                     allSongs.filter { it.albumId == album.id }.sortedBy { it.numberInAlbum }
                 }
