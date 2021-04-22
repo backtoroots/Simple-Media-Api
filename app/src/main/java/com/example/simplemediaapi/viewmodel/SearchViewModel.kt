@@ -62,13 +62,13 @@ class SearchViewModel : ViewModel() {
             }
             .map { (_, searchText) -> searchText }
             .flatMapSingle { text ->
-                Log.v("searchViewModelTag", "onNext - text: ${text}\n")
+                Log.v(TAG, "onNext - text: ${text}\n")
                 getAlbums(text).subscribeOn(Schedulers.io()) // TODO add error handling - room cache?
             }
             .map { albums -> albums.sortedBy { it.name } }
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { albumsFromApi ->
-                    Log.v("searchViewModelTag", "onNext - size: ${albumsFromApi.size}\n")
+                    Log.v(TAG, "onNext - size: ${albumsFromApi.size}\n")
                     displayedAlbums = albumsFromApi
             }.addTo(disposables)
     }

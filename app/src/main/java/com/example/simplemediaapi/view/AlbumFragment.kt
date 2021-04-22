@@ -13,7 +13,6 @@ import com.example.simplemediaapi.viewmodel.AlbumViewModel
 import com.example.simplemediaapi.viewmodel.NetworkViewModel
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
-import kotlinx.android.synthetic.main.activity_home.*
 
 
 class AlbumFragment : Fragment() {
@@ -24,12 +23,15 @@ class AlbumFragment : Fragment() {
     }
     private val networkViewModel by lazy { ViewModelProvider(requireActivity()).get(NetworkViewModel::class.java) }
     private val disposables = CompositeDisposable()
+    private var _binding: FragmentAlbumBinding? = null
+    private val binding
+        get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val binding = FragmentAlbumBinding.inflate(inflater, container, false) // TODO перехожу с поиска, не подхватывается инфа о состоянии инета, выводится
+        _binding = FragmentAlbumBinding.inflate(inflater, container, false)
             .apply { viewmodel = viewModel }
         binding.lifecycleOwner = this.viewLifecycleOwner
         return binding.root
@@ -37,15 +39,6 @@ class AlbumFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        networkViewModel.networkConnectionChanges
-            .take(1)
-            .filter { isNetworkConnected -> !isNetworkConnected }
-            .subscribe {
-                activity?.toolbar?.title = getString(R.string.waitingNetworkConnection)
-                // TODO message about no network connection
-            }
-            .addTo(disposables)
 
         networkViewModel.networkConnectionChanges
             .subscribe { isNetworkConnected ->
@@ -56,6 +49,7 @@ class AlbumFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         disposables.clear()
+        _binding = null
     }
 
 }
