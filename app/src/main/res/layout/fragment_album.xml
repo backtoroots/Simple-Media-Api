@@ -61,18 +61,27 @@
 
         </RelativeLayout>
 
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:indeterminate="true"
+            android:indeterminateDrawable="@drawable/circle"
+            android:visibility="@{viewmodel.progressBarVisible ? View.VISIBLE : View.GONE}" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/songsList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="@{viewmodel.songsNotEmpty ? View.VISIBLE : View.GONE}"
+            android:visibility="@{viewmodel.progressBarVisible ? View.GONE : View.VISIBLE}"
             app:setAdapter="@{viewmodel.adapter}" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:gravity="center"
+            android:orientation="vertical"
             android:visibility="@{viewmodel.songsNotEmpty ? View.GONE : View.VISIBLE}">
 
             <ImageView

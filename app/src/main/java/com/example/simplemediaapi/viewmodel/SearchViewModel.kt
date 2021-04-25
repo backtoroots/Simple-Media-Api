@@ -24,14 +24,18 @@ import java.util.concurrent.TimeUnit
  */
 class SearchViewModel : ViewModel() {
 
-    private val TAG = "SearchViewModelTag"
-
+    companion object {
+        private const val TAG = "SearchViewModelTag"
+    }
     private val _toStart = MutableLiveData<Event<Album>>()
     val toStart: LiveData<Event<Album>> = _toStart
 
     private val disposables = CompositeDisposable()
     private val searchTextChanges = BehaviorSubject.create<String>()
     private val networkConnectionChanges = PublishSubject.create<Boolean>()
+
+    private val _progressBarVisible: MutableLiveData<Boolean> = MutableLiveData(false)
+    val progressBarVisible: LiveData<Boolean> =  _progressBarVisible
 
     val adapter = AlbumsRecyclerViewAdapter(R.layout.albums_list_item, this)
 
@@ -61,6 +65,12 @@ class SearchViewModel : ViewModel() {
                 isNetworkConnected
             }
             .map { (_, searchText) -> searchText }
+            .doOnNext {
+                if (displayedAlbums.isEmpty()) {
+                    _progressBarVisible.postValue(true)
+                    Log.v(TAG, "progressBarVisible: $progressBarVisible")
+                }
+            }
             .flatMapSingle { text ->
                 Log.v(TAG, "onNext - text: ${text}\n")
                 getAlbums(text).subscribeOn(Schedulers.io()) // TODO add error handling - room cache?
@@ -68,8 +78,9 @@ class SearchViewModel : ViewModel() {
             .map { albums -> albums.sortedBy { it.name } }
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { albumsFromApi ->
-                    Log.v(TAG, "onNext - size: ${albumsFromApi.size}\n")
-                    displayedAlbums = albumsFromApi
+                Log.v(TAG, "onNext - size: ${albumsFromApi.size}\n")
+                displayedAlbums = albumsFromApi
+                _progressBarVisible.postValue(false)
             }.addTo(disposables)
     }
 

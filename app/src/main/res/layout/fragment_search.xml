@@ -3,6 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+        <import type="android.view.View"/>
+
         <variable
             name="viewmodel"
             type="com.example.simplemediaapi.viewmodel.SearchViewModel" />
@@ -33,13 +35,24 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/searchField"
+            android:indeterminate="true"
+            android:indeterminateDrawable="@drawable/circle"
+            android:visibility="@{viewmodel.progressBarVisible ? View.VISIBLE : View.GONE}"
+            />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/albumsList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:setAdapter="@{viewmodel.adapter}"
-            android:layout_below="@+id/searchField"/>
+            android:layout_below="@+id/searchField"
+            android:visibility="@{viewmodel.progressBarVisible ? View.GONE : View.VISIBLE}" />
 
 
     </RelativeLayout>
