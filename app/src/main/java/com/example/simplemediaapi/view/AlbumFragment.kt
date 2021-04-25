@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.example.simplemediaapi.R
 import com.example.simplemediaapi.databinding.FragmentAlbumBinding
 import com.example.simplemediaapi.utils.buildViewModel
 import com.example.simplemediaapi.viewmodel.AlbumViewModel

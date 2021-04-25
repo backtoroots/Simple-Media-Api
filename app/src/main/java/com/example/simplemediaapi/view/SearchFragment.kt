@@ -60,10 +60,10 @@ class SearchFragment : Fragment() {
          * Отслеживает событие клика по найденному альбому.
          * При возникновении события, стартует новую активити.
          */
-        viewModel.toStart.observe(requireActivity(), EventObserver { value ->
+        viewModel.toStart.observe(requireActivity(), EventObserver { album ->
             findNavController().navigate(
                 R.id.action_searchFragment_to_albumFragment,
-                bundleOf(NavigateConstants.album to value)
+                bundleOf(NavigateConstants.album to album)
             )
         })
 
