@@ -3,6 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+        <import type="android.view.View"/>
+
         <variable
             name="viewmodel"
             type="com.example.simplemediaapi.viewmodel.SearchViewModel" />
@@ -10,7 +12,9 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/searchField"
@@ -22,20 +26,32 @@
             app:startIconDrawable="@drawable/ic_baseline_search_24" >
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/searchEditField"
+                android:id="@+id/searchAlbumField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:onTextChanged="@{viewmodel.onTextChanged}" />
+                android:singleLine="true"
+                android:imeOptions="flagNoExtractUi"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/searchField"
+            android:indeterminate="true"
+            android:indeterminateDrawable="@drawable/circle"
+            android:visibility="@{viewmodel.progressBarVisible ? View.VISIBLE : View.GONE}"
+            />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/albumsList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:setAdapter="@{viewmodel.adapter}"
-            android:layout_below="@+id/searchField"/>
+            android:layout_below="@+id/searchField"
+            android:visibility="@{viewmodel.progressBarVisible ? View.GONE : View.VISIBLE}" />
 
 
     </RelativeLayout>

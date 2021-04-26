@@ -5,4 +5,7 @@
     <string name="noMatchesResult">Ничего не найдено</string>
     <string name="albumPhoto">Фото альбома</string>
     <string name="goBack">Вернуться назад</string>
+    <string name="waitingNetworkConnection">Ожидание сетевого подключения</string>
+    <string name="searchFragmentLabel">Поиск альбома</string>
+    <string name="albumFragmentLabel">Информация об альбоме</string>
 </resources>

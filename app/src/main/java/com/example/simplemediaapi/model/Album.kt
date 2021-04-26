@@ -1,8 +1,9 @@
 package com.example.simplemediaapi.model
 
 import android.os.Parcelable
+import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 /**
  * Класс используется для корректного получения данных из Api.
@@ -18,6 +19,7 @@ data class AlbumsResponse(val resultsCount: Int, val results: List<Album>)
  * @param name название альбома
  * @param imageUrl url картинки альбома
  */
+@Keep
 @Parcelize
 data class Album(
     @SerializedName("collectionId") val id: Int,

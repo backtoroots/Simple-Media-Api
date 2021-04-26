@@ -1,48 +1,69 @@
 package com.example.simplemediaapi.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.simplemediaapi.R
 import com.example.simplemediaapi.adapters.SongsRecyclerViewAdapter
 import com.example.simplemediaapi.constants.ApiConstants
-import com.example.simplemediaapi.model.ITunesRepository
 import com.example.simplemediaapi.model.Album
+import com.example.simplemediaapi.model.ITunesRepository
 import com.example.simplemediaapi.model.Song
-import kotlinx.coroutines.*
+import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
+import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.PublishSubject
 
 /**
  * ViewModel для AlbumActivity.
  */
-class AlbumViewModel: ViewModel() {
-    lateinit var album: Album
+class AlbumViewModel(val album: Album): ViewModel() {
 
-    init {
-        getSongs()
-    }
+    private val networkConnectionChanges = PublishSubject.create<Boolean>()
+    private val disposables = CompositeDisposable()
 
-//    Переменная для отслеживания клика по кнопке перехода к предыдущей активити.
-    private val _backPressed = MutableLiveData<Boolean>()
-    val backPressed: LiveData<Boolean> = _backPressed
+    private val _progressBarVisible: MutableLiveData<Boolean> = MutableLiveData(false)
+    val progressBarVisible: LiveData<Boolean> =  _progressBarVisible
 
-//    Переменная для хранения найденных песен
-    var songs: List<Song> = listOf()
-    set(value) {
-       field = value
-        _songsNotEmpty.postValue(value.isNotEmpty())
-    }
+    val adapter = SongsRecyclerViewAdapter(R.layout.songs_list_item, this)
 
-//    Переменная для отслеживания отсутствия песен
+    var displayedSongs: List<Song> = listOf()
+        set(value) {
+            field = value
+            adapter.notifyDataSetChanged()
+            _songsNotEmpty.postValue(value.isNotEmpty())
+        }
+
     private val _songsNotEmpty: MutableLiveData<Boolean> = MutableLiveData(true)
     val songsNotEmpty: LiveData<Boolean> =  _songsNotEmpty
 
-//    Инициализация адаптера, хранящего записи о песнях
-    val adapter = SongsRecyclerViewAdapter(R.layout.songs_list_item, this)
+    companion object {
+        private const val TAG = "AlbumViewModelTag"
+    }
 
-    /**
-     * Метод обрабатывает нажатие кнопки "Вернуться назад"
-      */
-    fun clickBack() = _backPressed.postValue(true)
+    init {
+        networkConnectionChanges
+            .filter { isNetworkConnected ->
+                Log.v(TAG, "try to get songs\n")
+                isNetworkConnected }
+            .take(1)
+            .doOnNext {
+                if (displayedSongs.isEmpty()) {
+                    _progressBarVisible.postValue(true)
+                    Log.v(TAG, "progressBarVisible: $progressBarVisible")
+                }
+            }
+            .flatMapSingle {  getSongs().subscribeOn(Schedulers.io()) }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { songs ->
+                displayedSongs = songs
+                _progressBarVisible.postValue(false)
+                _songsNotEmpty.postValue(true)
+            }.addTo(disposables)
+    }
 
     /**
      * Метод осуществляет получение песен из Api с помощью корутины.
@@ -51,32 +72,31 @@ class AlbumViewModel: ViewModel() {
      * Среди полученных песен, отбираются относящиеся к ожидаемому альбому.
      * Песни сортируются по номеру, пришедшему из Api для корректного отображения.
      */
-    private fun getSongs() {
-        GlobalScope.launch(Dispatchers.IO) {
-            while (!this@AlbumViewModel::album.isInitialized)
-                delay(100)
-            val song = ITunesRepository.getSongs(
+    private fun getSongs(): Single<List<Song>> {
+            return ITunesRepository.getSongs(
                 album.name,
                 ApiConstants.songTypeOfContent,
-                ApiConstants.limitForSongs,
                 ApiConstants.countryRu
             )
-            val songOfExpectedAlbum: List<Song> = song.filter { it.albumId == album.id }
-
-            withContext(Dispatchers.Main) {
-                songs = songOfExpectedAlbum.sortedBy { it.numberInAlbum }
-                adapter.notifyDataSetChanged()
-            }
-        }
+                .map { allSongs ->
+                    allSongs.filter { it.albumId == album.id }.sortedBy { it.numberInAlbum }
+                }
     }
 
     /**
      * Метод осуществляет конвертацию длительности песни в миллисекундах в строку формата 00:00.
      */
     fun convertTime(position: Int): String {
-        val time = songs[position].duration / 1000
+        val time = displayedSongs[position].duration / 1000
         return "%d:%02d".format(time / 60, time % 60)
     }
 
+    fun networkConnectionChanged(isNetworkConnected: Boolean) {
+        networkConnectionChanges.onNext(isNetworkConnected)
+    }
 
+    override fun onCleared() {
+        super.onCleared()
+        disposables.clear()
+    }
 }

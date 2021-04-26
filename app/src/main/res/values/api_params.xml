@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="albumTypeOfContent">album</string>
-    <string name="searchByAlbum">albumTerm</string>
-    <string name="limitForAlbums">15</string>
-    <string name="countryRu">ru</string>
-</resources>

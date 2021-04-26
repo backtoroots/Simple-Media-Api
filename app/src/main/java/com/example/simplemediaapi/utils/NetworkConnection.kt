@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.*
+import android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET
 import android.os.Build
 import androidx.lifecycle.LiveData
 import java.lang.IllegalStateException
@@ -18,18 +19,18 @@ class NetworkConnection(private val context: Context): LiveData<Boolean>() {
 
     private var connectivityManager: ConnectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
     private lateinit var networkCallback: ConnectivityManager.NetworkCallback
+    private val validNetworks: MutableSet<Network> = HashSet()
 
     /**
      * Вызывается при изменении количества наблюдателей с 0 до 1.
      */
     override fun onActive() {
         super.onActive()
-        updateConnection()
+        checkValidNetworks()
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> {
-                connectivityManager.registerDefaultNetworkCallback(connectivityManagerCallback())
+                connectivityManager.registerDefaultNetworkCallback(connectivityManagerCallback()) // TODO do as in LOLIPOP
             }
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP -> {
                 lolipopNetworkRequest()
@@ -49,11 +50,14 @@ class NetworkConnection(private val context: Context): LiveData<Boolean>() {
      */
     override fun onInactive() {
         super.onInactive()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            connectivityManager.unregisterNetworkCallback(networkCallback)
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private fun lolipopNetworkRequest() {
         val requestBuilder = NetworkRequest.Builder()
+            .addCapability(NET_CAPABILITY_INTERNET)
             .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
             .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
             .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
@@ -68,23 +72,36 @@ class NetworkConnection(private val context: Context): LiveData<Boolean>() {
             networkCallback = object: ConnectivityManager.NetworkCallback() {
                 override fun onLost(network: Network) {
                     super.onLost(network)
-                    postValue(false)
+//                    postValue(false)
+                    validNetworks.remove(network)
+                    checkValidNetworks()
                 }
 
                 override fun onAvailable(network: Network) {
                     super.onAvailable(network)
-                    postValue(true)
+                    val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
+                    val hasInternetCapability = networkCapabilities?.hasCapability(NET_CAPABILITY_INTERNET)
+                    if (hasInternetCapability == true)
+                        validNetworks.add(network)
+                        checkValidNetworks()
+
+//                    else
+//                        postValue(false)
                 }
             }
             return networkCallback
 
         } else {
-            throw IllegalStateException("Error")
+            throw IllegalStateException("Creation NetworkCallback on API level less than 21")
         }
     }
 
+    private fun checkValidNetworks() {
+        postValue(validNetworks.size > 0)
+    }
+
     private var networkReceiver = object: BroadcastReceiver() {
-        override fun onReceive(p0: Context?, p1: Intent?) {
+        override fun onReceive(context: Context?, intent: Intent?) {
             updateConnection()
         }
 
