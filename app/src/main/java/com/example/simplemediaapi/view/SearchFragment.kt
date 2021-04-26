@@ -14,7 +14,6 @@ import com.example.simplemediaapi.R
 import com.example.simplemediaapi.constants.NavigateConstants
 import com.example.simplemediaapi.databinding.FragmentSearchBinding
 import com.example.simplemediaapi.utils.EventObserver
-import com.example.simplemediaapi.utils.disableContentInteraction
 import com.example.simplemediaapi.utils.hideSoftKeyBoard
 import com.example.simplemediaapi.viewmodel.NetworkViewModel
 import com.example.simplemediaapi.viewmodel.SearchViewModel
@@ -72,8 +71,7 @@ class SearchFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         disposables.clear()
-        disableContentInteraction(binding.searchAlbumField)
-        hideSoftKeyBoard()
+        hideSoftKeyBoard(binding.searchAlbumField)
         _binding = null
     }
 }
